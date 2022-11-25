@@ -1,0 +1,8 @@
+{
+  "availability-zones:account=403707884266:region=us-east-2": [
+    "us-east-2a",
+    "us-east-2b",
+    "us-east-2c"
+  ],
+  "ssm:account=403707884266:parameterName=/dop302/S3_ENDPOINT_ID:region=us-east-2": "vpce-0f0bacfc07452fa62"
+}
