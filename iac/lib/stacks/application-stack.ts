@@ -1,4 +1,4 @@
-import { StackProps } from "aws-cdk-lib";
+import { Duration, StackProps } from "aws-cdk-lib";
 import { DockerImageCode, DockerImageFunction, FunctionUrlAuthType } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import { Dop302Bucket } from "../constructs/dop302-bucket";
@@ -14,7 +14,7 @@ export class ApplicationStack extends Dop302Stack {
       code: DockerImageCode.fromImageAsset("../put-object"),
       environment: {
         BUCKET_NAME: bucket.bucketName
-      }
+      },
     })
 
     putObjectFunction.addFunctionUrl({

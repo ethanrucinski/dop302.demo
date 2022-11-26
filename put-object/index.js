@@ -29,7 +29,4 @@ exports.handler = async(event, _) => {
             error: `Could not put object ${err}`,
         };
     }
-
-
-    
 }

@@ -4,5 +4,36 @@
     "us-east-2b",
     "us-east-2c"
   ],
-  "ssm:account=403707884266:parameterName=/dop302/S3_ENDPOINT_ID:region=us-east-2": "vpce-0f0bacfc07452fa62"
+  "ssm:account=403707884266:parameterName=/dop302/S3_ENDPOINT_ID:region=us-east-2": "vpce-0f0bacfc07452fa62",
+  "vpc-provider:account=403707884266:filter.isDefault=false:filter.tag:project=dop302-demo:region=us-east-2:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0d0cbf753a83a9406",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "private",
+        "type": "Isolated",
+        "subnets": [
+          {
+            "subnetId": "subnet-057007dba4300349d",
+            "cidr": "10.0.0.0/24",
+            "availabilityZone": "us-east-2a",
+            "routeTableId": "rtb-052b5a43846191931"
+          },
+          {
+            "subnetId": "subnet-0e08e48a1f4236018",
+            "cidr": "10.0.1.0/24",
+            "availabilityZone": "us-east-2b",
+            "routeTableId": "rtb-0ac49e61f142bb5ba"
+          },
+          {
+            "subnetId": "subnet-0e717c341ffc693c7",
+            "cidr": "10.0.2.0/24",
+            "availabilityZone": "us-east-2c",
+            "routeTableId": "rtb-0b4927a1b890baf10"
+          }
+        ]
+      }
+    ]
+  }
 }
