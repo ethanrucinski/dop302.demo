@@ -1,0 +1,148 @@
+Resources:
+  Vpc8378EB38:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: VpcStack/Vpc
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/Resource
+  VpcprivateSubnet1SubnetCEAD3716:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: Vpc8378EB38
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.0.0/17
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: private
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: VpcStack/Vpc/privateSubnet1
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet1/Subnet
+  VpcprivateSubnet1RouteTable1979EACB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: Vpc8378EB38
+      Tags:
+        - Key: Name
+          Value: VpcStack/Vpc/privateSubnet1
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet1/RouteTable
+  VpcprivateSubnet1RouteTableAssociationEEBD93CE:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcprivateSubnet1RouteTable1979EACB
+      SubnetId:
+        Ref: VpcprivateSubnet1SubnetCEAD3716
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet1/RouteTableAssociation
+  VpcprivateSubnet2Subnet2DE7549C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: Vpc8378EB38
+      AvailabilityZone: us-east-1b
+      CidrBlock: 10.0.128.0/17
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: private
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: VpcStack/Vpc/privateSubnet2
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet2/Subnet
+  VpcprivateSubnet2RouteTable4D0FFC8C:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: Vpc8378EB38
+      Tags:
+        - Key: Name
+          Value: VpcStack/Vpc/privateSubnet2
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet2/RouteTable
+  VpcprivateSubnet2RouteTableAssociationB691E645:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcprivateSubnet2RouteTable4D0FFC8C
+      SubnetId:
+        Ref: VpcprivateSubnet2Subnet2DE7549C
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/privateSubnet2/RouteTableAssociation
+  VpcEndpoint6FF034F6:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName:
+        Fn::Join:
+          - ""
+          - - com.amazonaws.
+            - Ref: AWS::Region
+            - .s3
+      VpcId:
+        Ref: Vpc8378EB38
+      RouteTableIds:
+        - Ref: VpcprivateSubnet1RouteTable1979EACB
+        - Ref: VpcprivateSubnet2RouteTable4D0FFC8C
+      VpcEndpointType: Gateway
+    Metadata:
+      aws:cdk:path: VpcStack/Vpc/Endpoint/Resource
+  S3EndpointIdD1AFFF11:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value:
+        Ref: VpcEndpoint6FF034F6
+      Name: /dop302/S3_ENDPOINT_ID
+      Tags:
+        project: dop302-demo
+    Metadata:
+      aws:cdk:path: VpcStack/S3EndpointId/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/0WOwQqDMBBEv8V7TKvQ3ouUXkWL1xLjtqzWRJKNUiT/3tjWCgs781hmNuWHhCeRmGwsmy5+Ys3nkoTsWEC3GWTK52qQLLurKs9YbnAUBKWrFdACN1VoR3AV9RM2vrGTtVqiINSKXULCJF4h9qyaQaOiX/xqPbO2X/4wqB65MKIHArMc/Y33rACrnZGfulV7pnQDvLW7MTnyMPuotYixcYqwB1589xuBUQdF9gAAAA==
+    Metadata:
+      aws:cdk:path: VpcStack/CDKMetadata/Default
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/base/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

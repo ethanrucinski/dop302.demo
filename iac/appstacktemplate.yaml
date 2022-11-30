@@ -1,0 +1,192 @@
+Resources:
+  Bucket83908E77:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: project
+          Value: dop302-demo
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: ApplicationStack/Bucket/Resource
+  BucketPolicyE9A3008A:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: Bucket83908E77
+      PolicyDocument:
+        Statement:
+          - Action: "*"
+            Condition:
+              StringNotEquals:
+                aws:SourceVpce: vpce-030ebb25305c811fe
+            Effect: Deny
+            NotPrincipal:
+              AWS:
+                - arn:aws:iam::389171335348:user/ethan.rucinski
+                - arn:aws:iam::389171335348:role/cdk-base-cfn-exec-role-389171335348-us-east-1
+                - arn:aws:sts::389171335348:assumed-role/cdk-base-cfn-exec-role-389171335348-us-east-1/AWSCloudFormation
+            Resource:
+              - Fn::GetAtt:
+                  - Bucket83908E77
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - Bucket83908E77
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: ApplicationStack/Bucket/Policy/Resource
+  FunctionServiceRole675BB04A:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Tags:
+        - Key: project
+          Value: dop302-demo
+    Metadata:
+      aws:cdk:path: ApplicationStack/Function/ServiceRole/Resource
+  FunctionServiceRoleDefaultPolicy2F49994A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - Bucket83908E77
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - Bucket83908E77
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: FunctionServiceRoleDefaultPolicy2F49994A
+      Roles:
+        - Ref: FunctionServiceRole675BB04A
+    Metadata:
+      aws:cdk:path: ApplicationStack/Function/ServiceRole/DefaultPolicy/Resource
+  Function76856677:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ImageUri:
+          Fn::Sub: 389171335348.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-base-container-assets-389171335348-us-east-1:e65f8d5c813b7ee55cf448743c4fe7bd357da41451d416c17891272ea9437839
+      Role:
+        Fn::GetAtt:
+          - FunctionServiceRole675BB04A
+          - Arn
+      Environment:
+        Variables:
+          BUCKET_NAME:
+            Ref: Bucket83908E77
+      PackageType: Image
+      Tags:
+        - Key: project
+          Value: dop302-demo
+      VpcConfig:
+        SubnetIds:
+          - subnet-0cf35c8468c4c16fa
+          - subnet-0d9a24180b7abd471
+        SecurityGroupIds:
+          - Fn::GetAtt:
+              - FunctionSecurityGroup37F9C17C
+              - GroupId
+    DependsOn:
+      - FunctionServiceRoleDefaultPolicy2F49994A
+      - FunctionServiceRole675BB04A
+      - LambdaVpcPolicy73B09A58
+    Metadata:
+      aws:cdk:path: ApplicationStack/Function/Resource
+      aws:asset:path: asset.e65f8d5c813b7ee55cf448743c4fe7bd357da41451d416c17891272ea9437839
+      aws:asset:dockerfile-path: Dockerfile
+      aws:asset:property: Code.ImageUri
+  FunctionSecurityGroup37F9C17C:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ApplicationStack/FunctionSecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: from 0.0.0.0/0:443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      VpcId: vpc-0aa69808f2d27fcf6
+    Metadata:
+      aws:cdk:path: ApplicationStack/FunctionSecurityGroup/Resource
+  LambdaVpcPolicy73B09A58:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DeleteNetworkInterface
+              - ec2:DescribeNetworkInterfaces
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: LambdaVpcPolicy73B09A58
+      Roles:
+        - Fn::Select:
+            - 1
+            - Fn::Split:
+                - /
+                - Fn::Select:
+                    - 5
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - FunctionServiceRole675BB04A
+                            - Arn
+    Metadata:
+      aws:cdk:path: ApplicationStack/LambdaVpcPolicy/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/1WP0WrDMAxFv6Xvjrp0rO/tRsfeRvYBxXW0oCaximVvBON/r520dAPBlY/EQd7ASw31Sv9KZdq+GugE8ctr06uMjlGeIe6D6dGr129765b45IHM9MDLO6lBj6dWQ3zjTN3HqDs8BGs8sS3L9z4p0iPEhgcseM6H8i5D445aBL3AH9+ukDKDBi8s5NlNey2Y0SafjyY48tO743Apsn8gJdWgcHAG1ezJv+3IdvMRt0FSlluEs6x/6i3kelqdhahywXoaEZolrwL4LFM8AQAA
+    Metadata:
+      aws:cdk:path: ApplicationStack/CDKMetadata/Default
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/base/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+
