@@ -1,8 +1,6 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3")
 
-
 exports.handler = async(event, _) => {
-
     // retrieve inputs
     let body, key, content;
     try {
