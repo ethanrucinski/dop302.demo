@@ -1,7 +1,6 @@
 import { Stack } from "aws-cdk-lib";
 import {
     ArnPrincipal,
-    CanonicalUserPrincipal,
     Effect,
     PolicyStatement,
 } from "aws-cdk-lib/aws-iam";

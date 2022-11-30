@@ -76,7 +76,6 @@ class LambdaVpcAttacher implements IAspect {
                     SubnetIds: vpc.isolatedSubnets.map(
                         (subnet) => subnet.subnetId
                     ),
-
                     SecurityGroupIds: [securityGroup.securityGroupId],
                 });
 
